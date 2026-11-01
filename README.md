@@ -181,7 +181,7 @@ macOS／Linux 不需要 `-lws2_32`。
 
 網址：https://Yong-Cheng-Huang.github.io/socket-programming/
 
-提供播放／暫停、上一步／下一步、拖曳進度與重播，共 21 個狀態；區分 listening socket 和 connected socket，顯示交握、資料傳送與關閉連線。
+提供播放／暫停、上一步／下一步、拖曳進度與重播，共 20 個狀態；區分 listening socket 和 connected socket，顯示交握、資料傳送與關閉連線。
 
 - `src/animation.html`：可直接閱讀與編輯的 HTML、CSS、JavaScript。步驟 label 保留 `margin-top:16px`。
 - `index.html`：可直接開啟的完整網頁，內含動畫 iframe。

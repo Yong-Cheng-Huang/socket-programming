@@ -1902,7 +1902,7 @@ html&gt;body{padding:0}&lt;/style&gt;
 &lt;span class=&quot;phase viz-badge&quot; id=&quot;tcp-phase&quot;&gt;準備&lt;/span&gt;
 &lt;/div&gt;
 &lt;label class=&quot;form-label text-small&quot; for=&quot;tcp-step&quot; style=&quot;display:block;margin-top:16px&quot;&gt;步驟 &lt;span id=&quot;tcp-count&quot; class=&quot;tabular-nums&quot;&gt;&lt;/span&gt; · &lt;span id=&quot;tcp-title&quot;&gt;&lt;/span&gt;&lt;/label&gt;
-&lt;input id=&quot;tcp-step&quot; class=&quot;form-range scrub&quot; type=&quot;range&quot; min=&quot;0&quot; max=&quot;20&quot; value=&quot;0&quot;&gt;
+&lt;input id=&quot;tcp-step&quot; class=&quot;form-range scrub&quot; type=&quot;range&quot; min=&quot;0&quot; max=&quot;19&quot; value=&quot;0&quot;&gt;
 &lt;div class=&quot;ends&quot;&gt;
 &lt;section class=&quot;endpoint&quot;&gt;&lt;h3&gt;Server 伺服器&lt;/h3&gt;&lt;div class=&quot;address text-small&quot;&gt;127.0.0.1 : 8080&lt;/div&gt;
 &lt;div class=&quot;socket absent&quot; id=&quot;tcp-listen&quot;&gt;&lt;strong&gt;接待用 socket · L&lt;/strong&gt;&lt;code&gt;listen_fd = 3&lt;/code&gt;&lt;span class=&quot;state text-small&quot; id=&quot;tcp-lstate&quot;&gt;&lt;/span&gt;&lt;/div&gt;
@@ -1942,34 +1942,34 @@ const steps=[
 [&#x27;資料&#x27;,&#x27;Server：send(S, &quot;收到&quot;)&#x27;,&#x27;Server 透過同一個 connected socket S 回覆。&#x27;,&#x27;right&#x27;,&#x27;「收到」· Server → Client&#x27;],
 [&#x27;資料&#x27;,&#x27;Client：recv(C, ...)&#x27;,&#x27;Client 從 C 讀取 Server 的回覆「收到」。&#x27;,null,&#x27;Client 應用程式讀取「收到」&#x27;],
 [&#x27;關閉&#x27;,&#x27;Client：close(C)&#x27;,&#x27;Client 釋放 C，核心開始正常關閉；FIN 在此以關閉方向簡化表示。&#x27;,&#x27;left&#x27;,&#x27;關閉傳送方向 · Client → Server&#x27;],
-[&#x27;關閉&#x27;,&#x27;Server：recv(S, ...) = 0&#x27;,&#x27;資料讀完後，recv 回傳 0 代表 EOF：對方不會再傳資料；S 尚未由 Server 關閉。&#x27;,null,&#x27;Server 讀到 EOF&#x27;],
 [&#x27;關閉&#x27;,&#x27;Server：close(S)&#x27;,&#x27;Server 釋放此次連線的 S；L 還在監聽，仍可接待其他 Client。&#x27;,&#x27;right&#x27;,&#x27;關閉傳送方向 · Server → Client&#x27;],
 [&#x27;監聽&#x27;,&#x27;Listening socket 仍然存在&#x27;,&#x27;若要服務下一位 Client，可再次呼叫 accept(L)；本示例接著結束伺服器。&#x27;,null,&#x27;L 仍可接受新連線&#x27;],
 [&#x27;結束&#x27;,&#x27;Server：close(L)&#x27;,&#x27;Server 釋放 listening socket L，不再接受新連線。&#x27;,null,&#x27;示例結束&#x27;]
 ];
-const server=[[&#x27;socket(...) → L&#x27;,1,1],[&#x27;bind(L, ...)&#x27;,2,2],[&#x27;listen(L, ...)&#x27;,3,3],[&#x27;accept(L) → S&#x27;,4,11],[&#x27;recv(S, ...)&#x27;,13,13],[&#x27;send(S, ...)&#x27;,14,14],[&#x27;recv(S, ...) → 0&#x27;,17,17],[&#x27;close(S)&#x27;,18,18],[&#x27;close(L)&#x27;,20,20]];
+const lastStep=steps.length-1;
+const server=[[&#x27;socket(...) → L&#x27;,1,1],[&#x27;bind(L, ...)&#x27;,2,2],[&#x27;listen(L, ...)&#x27;,3,3],[&#x27;accept(L) → S&#x27;,4,11],[&#x27;recv(S, ...)&#x27;,13,13],[&#x27;send(S, ...)&#x27;,14,14],[&#x27;close(S)&#x27;,17,17],[&#x27;close(L)&#x27;,19,19]];
 const client=[[&#x27;socket(...) → C&#x27;,5,5],[&#x27;connect(C, ...)&#x27;,6,10],[&#x27;send(C, ...)&#x27;,12,12],[&#x27;recv(C, ...)&#x27;,15,15],[&#x27;close(C)&#x27;,16,16]];
 let n=0,playing=false,timer=null;
 function saved(){const s=window.openai?.widgetState;return s?.privateContent||s||{}}
-const init=saved();if(Number.isInteger(init.step))n=Math.max(0,Math.min(20,init.step));
+const init=saved();if(Number.isInteger(init.step))n=Math.max(0,Math.min(lastStep,init.step));
 function save(){window.openai?.setWidgetState?.({modelContent:{step:n,stage:steps[n][1]},privateContent:{step:n}})?.catch(()=&gt;{});}
 function calls(el,items){el.innerHTML=&#x27;&#x27;;items.forEach(([name,start,end])=&gt;{const li=document.createElement(&#x27;li&#x27;);li.className=n&lt;start?&#x27;pending&#x27;:n&lt;=end?&#x27;active&#x27;:&#x27;&#x27;;const mark=document.createElement(&#x27;span&#x27;);mark.className=&#x27;mark&#x27;;mark.textContent=n&lt;start?&#x27;·&#x27;:n&lt;=end?&#x27;▶&#x27;:&#x27;✓&#x27;;const code=document.createElement(&#x27;code&#x27;);code.textContent=name;li.append(mark,code);el.append(li);});}
-function draw(){const s=steps[n];q(&#x27;count&#x27;).textContent=n+&#x27; / 20&#x27;;q(&#x27;title&#x27;).textContent=s[1];q(&#x27;phase&#x27;).textContent=s[0];q(&#x27;step&#x27;).value=n;q(&#x27;detail&#x27;).textContent=s[2];q(&#x27;prev&#x27;).disabled=n===0;q(&#x27;next&#x27;).disabled=n===20;q(&#x27;play&#x27;).textContent=playing?&#x27;暫停&#x27;:n===20?&#x27;重播&#x27;:&#x27;播放&#x27;;
-q(&#x27;lstate&#x27;).textContent=n===0?&#x27;尚未建立&#x27;:n===1?&#x27;已建立，尚未綁定位址&#x27;:n===2?&#x27;已綁定 :8080&#x27;:n&lt;20?&#x27;LISTEN · 持續監聽&#x27;:&#x27;已關閉&#x27;;
-q(&#x27;sstate&#x27;).textContent=n&lt;11?&#x27;accept() 尚未回傳此 fd&#x27;:n&lt;16?&#x27;ESTABLISHED · 收發資料&#x27;:n&lt;18?&#x27;已收到對方 FIN · 等待本端關閉&#x27;:&#x27;已關閉&#x27;;
+function draw(){const s=steps[n];q(&#x27;count&#x27;).textContent=n+&#x27; / &#x27;+lastStep;q(&#x27;title&#x27;).textContent=s[1];q(&#x27;phase&#x27;).textContent=s[0];q(&#x27;step&#x27;).value=n;q(&#x27;detail&#x27;).textContent=s[2];q(&#x27;prev&#x27;).disabled=n===0;q(&#x27;next&#x27;).disabled=n===lastStep;q(&#x27;play&#x27;).textContent=playing?&#x27;暫停&#x27;:n===lastStep?&#x27;重播&#x27;:&#x27;播放&#x27;;
+q(&#x27;lstate&#x27;).textContent=n===0?&#x27;尚未建立&#x27;:n===1?&#x27;已建立，尚未綁定位址&#x27;:n===2?&#x27;已綁定 :8080&#x27;:n&lt;lastStep?&#x27;LISTEN · 持續監聽&#x27;:&#x27;已關閉&#x27;;
+q(&#x27;sstate&#x27;).textContent=n&lt;11?&#x27;accept() 尚未回傳此 fd&#x27;:n&lt;16?&#x27;ESTABLISHED · 收發資料&#x27;:n&lt;17?&#x27;已收到對方 FIN · 等待本端關閉&#x27;:&#x27;已關閉&#x27;;
 q(&#x27;cstate&#x27;).textContent=n&lt;5?&#x27;尚未建立&#x27;:n===5?&#x27;已建立，尚未連線&#x27;:n&lt;9?&#x27;正在連線&#x27;:n&lt;16?&#x27;ESTABLISHED · 收發資料&#x27;:&#x27;描述符已關閉&#x27;;
-q(&#x27;listen&#x27;).classList.toggle(&#x27;absent&#x27;,n===0||n===20);q(&#x27;conn&#x27;).classList.toggle(&#x27;absent&#x27;,n&lt;11||n&gt;=18);q(&#x27;client&#x27;).classList.toggle(&#x27;absent&#x27;,n&lt;5||n&gt;=16);
-q(&#x27;wait&#x27;).textContent=n&gt;=4&amp;&amp;n&lt;11?&#x27;Server：accept(L) 等待中&#x27;:n&gt;=11&amp;&amp;n&lt;18?&#x27;L 接待新連線；S 服務目前 Client。&#x27;:n&gt;=18&amp;&amp;n&lt;20?&#x27;只關閉 S，不影響 L 的監聽。&#x27;:&#x27;&#x27;;
+q(&#x27;listen&#x27;).classList.toggle(&#x27;absent&#x27;,n===0||n===lastStep);q(&#x27;conn&#x27;).classList.toggle(&#x27;absent&#x27;,n&lt;11||n&gt;=17);q(&#x27;client&#x27;).classList.toggle(&#x27;absent&#x27;,n&lt;5||n&gt;=16);
+q(&#x27;wait&#x27;).textContent=n&gt;=4&amp;&amp;n&lt;11?&#x27;Server：accept(L) 等待中&#x27;:n&gt;=11&amp;&amp;n&lt;17?&#x27;L 接待新連線；S 服務目前 Client。&#x27;:n&gt;=17&amp;&amp;n&lt;lastStep?&#x27;只關閉 S，不影響 L 的監聽。&#x27;:&#x27;&#x27;;
 q(&#x27;wirelabel&#x27;).textContent=s[4];q(&#x27;wire&#x27;).setAttribute(&#x27;aria-label&#x27;,s[4]);q(&#x27;leftend&#x27;).textContent=n&gt;=11?&#x27;Server · S&#x27;:&#x27;Server 核心&#x27;;
 const p=q(&#x27;packet&#x27;);p.className=&#x27;packet&#x27;;void p.offsetWidth;if(s[3])p.classList.add(&#x27;travel-&#x27;+s[3]);
 const a=q(&#x27;arrow&#x27;);a.textContent=s[3]===&#x27;left&#x27;?&#x27;◀&#x27;:s[3]===&#x27;right&#x27;?&#x27;▶&#x27;:&#x27;&#x27;;a.style.left=s[3]===&#x27;left&#x27;?&#x27;0&#x27;:&#x27;auto&#x27;;a.style.right=s[3]===&#x27;right&#x27;?&#x27;0&#x27;:&#x27;auto&#x27;;
 calls(q(&#x27;servercalls&#x27;),server);calls(q(&#x27;clientcalls&#x27;),client);
 }
 function stop(){playing=false;clearTimeout(timer);timer=null;}
-function schedule(){clearTimeout(timer);if(playing)timer=setTimeout(()=&gt;{if(n&lt;20){n++;draw();if(n===20){stop();draw();save()}else schedule()}},3200)}
-q(&#x27;play&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{if(playing)stop();else{if(n===20)n=0;playing=true;schedule()}draw();save()});
-q(&#x27;prev&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{stop();n=Math.max(0,n-1);draw();save()});q(&#x27;next&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{stop();n=Math.min(20,n+1);draw();save()});q(&#x27;step&#x27;).addEventListener(&#x27;input&#x27;,()=&gt;{stop();n=Number(q(&#x27;step&#x27;).value);draw();save()});
-window.addEventListener(&#x27;openai:set_globals&#x27;,e=&gt;{const state=e.detail?.globals?.widgetState;if(!state)return;const v=state.privateContent||state;if(Number.isInteger(v.step)){const incoming=Math.max(0,Math.min(20,v.step));if(incoming===n)return;stop();n=incoming;draw()}});
+function schedule(){clearTimeout(timer);if(playing)timer=setTimeout(()=&gt;{if(n&lt;lastStep){n++;draw();if(n===lastStep){stop();draw();save()}else schedule()}},3200)}
+q(&#x27;play&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{if(playing)stop();else{if(n===lastStep)n=0;playing=true;schedule()}draw();save()});
+q(&#x27;prev&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{stop();n=Math.max(0,n-1);draw();save()});q(&#x27;next&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{stop();n=Math.min(lastStep,n+1);draw();save()});q(&#x27;step&#x27;).addEventListener(&#x27;input&#x27;,()=&gt;{stop();n=Number(q(&#x27;step&#x27;).value);draw();save()});
+window.addEventListener(&#x27;openai:set_globals&#x27;,e=&gt;{const state=e.detail?.globals?.widgetState;if(!state)return;const v=state.privateContent||state;if(Number.isInteger(v.step)){const incoming=Math.max(0,Math.min(lastStep,v.step));if(incoming===n)return;stop();n=incoming;draw()}});
 draw();
 })();
 &lt;/script&gt;

@@ -1890,7 +1890,7 @@ html>body{padding:0}</style>
 <span class="phase viz-badge" id="tcp-phase">準備</span>
 </div>
 <label class="form-label text-small" for="tcp-step" style="display:block;margin-top:16px">步驟 <span id="tcp-count" class="tabular-nums"></span> · <span id="tcp-title"></span></label>
-<input id="tcp-step" class="form-range scrub" type="range" min="0" max="20" value="0">
+<input id="tcp-step" class="form-range scrub" type="range" min="0" max="19" value="0">
 <div class="ends">
 <section class="endpoint"><h3>Server 伺服器</h3><div class="address text-small">127.0.0.1 : 8080</div>
 <div class="socket absent" id="tcp-listen"><strong>接待用 socket · L</strong><code>listen_fd = 3</code><span class="state text-small" id="tcp-lstate"></span></div>
@@ -1930,34 +1930,34 @@ const steps=[
 ['資料','Server：send(S, "收到")','Server 透過同一個 connected socket S 回覆。','right','「收到」· Server → Client'],
 ['資料','Client：recv(C, ...)','Client 從 C 讀取 Server 的回覆「收到」。',null,'Client 應用程式讀取「收到」'],
 ['關閉','Client：close(C)','Client 釋放 C，核心開始正常關閉；FIN 在此以關閉方向簡化表示。','left','關閉傳送方向 · Client → Server'],
-['關閉','Server：recv(S, ...) = 0','資料讀完後，recv 回傳 0 代表 EOF：對方不會再傳資料；S 尚未由 Server 關閉。',null,'Server 讀到 EOF'],
 ['關閉','Server：close(S)','Server 釋放此次連線的 S；L 還在監聽，仍可接待其他 Client。','right','關閉傳送方向 · Server → Client'],
 ['監聽','Listening socket 仍然存在','若要服務下一位 Client，可再次呼叫 accept(L)；本示例接著結束伺服器。',null,'L 仍可接受新連線'],
 ['結束','Server：close(L)','Server 釋放 listening socket L，不再接受新連線。',null,'示例結束']
 ];
-const server=[['socket(...) → L',1,1],['bind(L, ...)',2,2],['listen(L, ...)',3,3],['accept(L) → S',4,11],['recv(S, ...)',13,13],['send(S, ...)',14,14],['recv(S, ...) → 0',17,17],['close(S)',18,18],['close(L)',20,20]];
+const lastStep=steps.length-1;
+const server=[['socket(...) → L',1,1],['bind(L, ...)',2,2],['listen(L, ...)',3,3],['accept(L) → S',4,11],['recv(S, ...)',13,13],['send(S, ...)',14,14],['close(S)',17,17],['close(L)',19,19]];
 const client=[['socket(...) → C',5,5],['connect(C, ...)',6,10],['send(C, ...)',12,12],['recv(C, ...)',15,15],['close(C)',16,16]];
 let n=0,playing=false,timer=null;
 function saved(){const s=window.openai?.widgetState;return s?.privateContent||s||{}}
-const init=saved();if(Number.isInteger(init.step))n=Math.max(0,Math.min(20,init.step));
+const init=saved();if(Number.isInteger(init.step))n=Math.max(0,Math.min(lastStep,init.step));
 function save(){window.openai?.setWidgetState?.({modelContent:{step:n,stage:steps[n][1]},privateContent:{step:n}})?.catch(()=>{});}
 function calls(el,items){el.innerHTML='';items.forEach(([name,start,end])=>{const li=document.createElement('li');li.className=n<start?'pending':n<=end?'active':'';const mark=document.createElement('span');mark.className='mark';mark.textContent=n<start?'·':n<=end?'▶':'✓';const code=document.createElement('code');code.textContent=name;li.append(mark,code);el.append(li);});}
-function draw(){const s=steps[n];q('count').textContent=n+' / 20';q('title').textContent=s[1];q('phase').textContent=s[0];q('step').value=n;q('detail').textContent=s[2];q('prev').disabled=n===0;q('next').disabled=n===20;q('play').textContent=playing?'暫停':n===20?'重播':'播放';
-q('lstate').textContent=n===0?'尚未建立':n===1?'已建立，尚未綁定位址':n===2?'已綁定 :8080':n<20?'LISTEN · 持續監聽':'已關閉';
-q('sstate').textContent=n<11?'accept() 尚未回傳此 fd':n<16?'ESTABLISHED · 收發資料':n<18?'已收到對方 FIN · 等待本端關閉':'已關閉';
+function draw(){const s=steps[n];q('count').textContent=n+' / '+lastStep;q('title').textContent=s[1];q('phase').textContent=s[0];q('step').value=n;q('detail').textContent=s[2];q('prev').disabled=n===0;q('next').disabled=n===lastStep;q('play').textContent=playing?'暫停':n===lastStep?'重播':'播放';
+q('lstate').textContent=n===0?'尚未建立':n===1?'已建立，尚未綁定位址':n===2?'已綁定 :8080':n<lastStep?'LISTEN · 持續監聽':'已關閉';
+q('sstate').textContent=n<11?'accept() 尚未回傳此 fd':n<16?'ESTABLISHED · 收發資料':n<17?'已收到對方 FIN · 等待本端關閉':'已關閉';
 q('cstate').textContent=n<5?'尚未建立':n===5?'已建立，尚未連線':n<9?'正在連線':n<16?'ESTABLISHED · 收發資料':'描述符已關閉';
-q('listen').classList.toggle('absent',n===0||n===20);q('conn').classList.toggle('absent',n<11||n>=18);q('client').classList.toggle('absent',n<5||n>=16);
-q('wait').textContent=n>=4&&n<11?'Server：accept(L) 等待中':n>=11&&n<18?'L 接待新連線；S 服務目前 Client。':n>=18&&n<20?'只關閉 S，不影響 L 的監聽。':'';
+q('listen').classList.toggle('absent',n===0||n===lastStep);q('conn').classList.toggle('absent',n<11||n>=17);q('client').classList.toggle('absent',n<5||n>=16);
+q('wait').textContent=n>=4&&n<11?'Server：accept(L) 等待中':n>=11&&n<17?'L 接待新連線；S 服務目前 Client。':n>=17&&n<lastStep?'只關閉 S，不影響 L 的監聽。':'';
 q('wirelabel').textContent=s[4];q('wire').setAttribute('aria-label',s[4]);q('leftend').textContent=n>=11?'Server · S':'Server 核心';
 const p=q('packet');p.className='packet';void p.offsetWidth;if(s[3])p.classList.add('travel-'+s[3]);
 const a=q('arrow');a.textContent=s[3]==='left'?'◀':s[3]==='right'?'▶':'';a.style.left=s[3]==='left'?'0':'auto';a.style.right=s[3]==='right'?'0':'auto';
 calls(q('servercalls'),server);calls(q('clientcalls'),client);
 }
 function stop(){playing=false;clearTimeout(timer);timer=null;}
-function schedule(){clearTimeout(timer);if(playing)timer=setTimeout(()=>{if(n<20){n++;draw();if(n===20){stop();draw();save()}else schedule()}},3200)}
-q('play').addEventListener('click',()=>{if(playing)stop();else{if(n===20)n=0;playing=true;schedule()}draw();save()});
-q('prev').addEventListener('click',()=>{stop();n=Math.max(0,n-1);draw();save()});q('next').addEventListener('click',()=>{stop();n=Math.min(20,n+1);draw();save()});q('step').addEventListener('input',()=>{stop();n=Number(q('step').value);draw();save()});
-window.addEventListener('openai:set_globals',e=>{const state=e.detail?.globals?.widgetState;if(!state)return;const v=state.privateContent||state;if(Number.isInteger(v.step)){const incoming=Math.max(0,Math.min(20,v.step));if(incoming===n)return;stop();n=incoming;draw()}});
+function schedule(){clearTimeout(timer);if(playing)timer=setTimeout(()=>{if(n<lastStep){n++;draw();if(n===lastStep){stop();draw();save()}else schedule()}},3200)}
+q('play').addEventListener('click',()=>{if(playing)stop();else{if(n===lastStep)n=0;playing=true;schedule()}draw();save()});
+q('prev').addEventListener('click',()=>{stop();n=Math.max(0,n-1);draw();save()});q('next').addEventListener('click',()=>{stop();n=Math.min(lastStep,n+1);draw();save()});q('step').addEventListener('input',()=>{stop();n=Number(q('step').value);draw();save()});
+window.addEventListener('openai:set_globals',e=>{const state=e.detail?.globals?.widgetState;if(!state)return;const v=state.privateContent||state;if(Number.isInteger(v.step)){const incoming=Math.max(0,Math.min(lastStep,v.step));if(incoming===n)return;stop();n=incoming;draw()}});
 draw();
 })();
 </script>
