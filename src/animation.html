@@ -1892,11 +1892,11 @@ html>body{padding:0}</style>
 <label class="form-label text-small" for="tcp-step" style="display:block;margin-top:16px">步驟 <span id="tcp-count" class="tabular-nums"></span> · <span id="tcp-title"></span></label>
 <input id="tcp-step" class="form-range scrub" type="range" min="0" max="20" value="0">
 <div class="ends">
-<section class="endpoint"><h3>Server 伺服器</h3><div class="address text-small">192.0.2.10 : 8080</div>
+<section class="endpoint"><h3>Server 伺服器</h3><div class="address text-small">127.0.0.1 : 8080</div>
 <div class="socket absent" id="tcp-listen"><strong>接待用 socket · L</strong><code>listen_fd = 3</code><span class="state text-small" id="tcp-lstate"></span></div>
 <div class="socket connected absent" id="tcp-conn"><strong>Connected socket · S</strong><code>conn_fd = 4</code><span class="state text-small" id="tcp-sstate"></span></div>
 </section>
-<section class="endpoint"><h3>Client 用戶端</h3><div class="address text-small">192.0.2.20 : 53000</div>
+<section class="endpoint"><h3>Client 用戶端</h3><div class="address text-small">127.0.0.1 : 53000</div>
 <div class="socket connected absent" id="tcp-client"><strong>Client socket · C</strong><code>client_fd = 3</code><span class="state text-small" id="tcp-cstate"></span></div>
 <div class="text-small text-muted" id="tcp-wait" style="margin-top:16px;min-height:76px"></div>
 </section>
