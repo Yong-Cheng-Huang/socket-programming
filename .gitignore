@@ -16,3 +16,6 @@ UDP/udpserver
 
 # Build directories
 build/
+
+# Generated website
+_site/

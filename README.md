@@ -176,3 +176,23 @@ macOS／Linux 不需要 `-lws2_32`。
 - TCP 使用換行 `\n` 作為訊息結束符號。
 - UDP 沒有設定接收逾時與重傳；若收不到回覆，可能持續等待。
 - 可按 `Ctrl + C` 結束等待中的程式。
+
+## TCP Socket 互動網頁
+
+網址：https://Yong-Cheng-Huang.github.io/socket-programming/
+
+提供播放／暫停、上一步／下一步、拖曳進度與重播，共 21 個狀態；區分 listening socket 和 connected socket，顯示交握、資料傳送與關閉連線。
+
+- `src/animation.html`：可直接閱讀與編輯的 HTML、CSS、JavaScript。步驟 label 保留 `margin-top:16px`。
+- `index.html`：可直接開啟的完整網頁，內含動畫 iframe。
+- `scripts/build.py`：將動畫原始碼重新嵌入網頁，輸出至 `_site/`。
+- `.github/workflows/pages.yml`：推送網頁更新到 `main` 後自動部署 GitHub Pages。
+
+修改 `src/animation.html` 後執行：
+
+```bash
+python3 scripts/build.py
+python3 -m http.server 8000 --directory _site
+```
+
+在瀏覽器開啟 `http://localhost:8000` 預覽。提交並推送 `src/animation.html` 和重新產生的 `index.html` 即可更新網站。
